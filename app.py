@@ -5,7 +5,9 @@ import json
 app = Flask(__name__)
 app.secret_key = "hackathon-secret"
 
+# Gemini client
 client = genai.Client(api_key="AIzaSyB-OnMeN6E1vvrGj60M6sUPdIm0ciUK-PY")
+
 
 SYSTEM_PROMPT = """
 You are an AI Interviewer and Interview Evaluator.
@@ -20,10 +22,6 @@ Rules:
 - Increase difficulty gradually.
 - Use previous answers for context.
 - Do not evaluate during interview.
-
-When interview ends, return JSON scorecard with:
-clarity, technical_accuracy, completeness, confidence,
-strengths, improvements, feedback.
 """
 
 # ---------------- HOME ----------------
@@ -42,12 +40,14 @@ def setup():
         session["questions"] = []
         session["q_index"] = 0
         return redirect(url_for("interview"))
+
     return render_template("setup.html")
 
 
 # -------- QUESTION GENERATION ----------
 def generate_question():
     role = session["role"]
+
     history = "\n".join(
         [f"Q:{a['question']}\nA:{a['answer']}" for a in session["answers"]]
     )
@@ -61,7 +61,7 @@ QUESTION NUMBER: {session['q_index'] + 1}
 INTERVIEW HISTORY:
 {history}
 
-Generate next question.
+Generate the next interview question.
 """
 
     response = client.models.generate_content(
@@ -75,26 +75,36 @@ Generate next question.
 # -------- SCORECARD GENERATION ----------
 def evaluate_answers():
     role = session["role"]
+
     qa_text = "\n".join(
         [f"Q:{a['question']}\nA:{a['answer']}" for a in session["answers"]]
     )
 
     prompt = f"""
-{SYSTEM_PROMPT}
+Return ONLY valid JSON.
 
-ROLE: {role}
+Evaluate this interview for role: {role}
 
-INTERVIEW TRANSCRIPT:
 {qa_text}
 
-Interview finished. Generate scorecard JSON.
+JSON format:
+{{
+  "clarity": 1-10,
+  "technical_accuracy": 1-10,
+  "completeness": 1-10,
+  "confidence": 1-10,
+  "strengths": ["point", "point"],
+  "improvements": ["point", "point"],
+  "feedback": "short summary"
+}}
 """
+
 
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt
     )
-
+    print(response.text)
     try:
         return json.loads(response.text)
     except:
@@ -104,6 +114,11 @@ Interview finished. Generate scorecard JSON.
 # ---------------- INTERVIEW ----------------
 @app.route("/interview", methods=["GET", "POST"])
 def interview():
+
+    # Ensure first question exists
+    if len(session["questions"]) == 0:
+        session["questions"].append(generate_question())
+
     if request.method == "POST":
         answer = request.form.get("answer")
 
@@ -117,7 +132,7 @@ def interview():
         if session["q_index"] >= 5:
             return redirect(url_for("scorecard"))
 
-    if len(session["questions"]) <= session["q_index"]:
+        # Generate next question
         session["questions"].append(generate_question())
 
     return render_template(
@@ -143,4 +158,3 @@ def scorecard():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
