@@ -1,16 +1,100 @@
-<h2>Interview Scorecard</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interview Scorecard</title>
 
-<p><b>Name:</b> {{ name }}</p>
-<p><b>Role:</b> {{ role }}</p>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f3f4f6;
+        }
 
-<h3>Scores</h3>
-<p>Clarity: {{ scores.clarity }}/10</p>
-<p>Technical Accuracy: {{ scores.technical_accuracy }}/10</p>
-<p>Completeness: {{ scores.completeness }}/10</p>
-<p>Confidence: {{ scores.confidence }}/10</p>
+        .header {
+            background: #4f46e5;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
 
-<h3>Summary</h3>
-<p>{{ scores.summary }}</p>
+        .card {
+            width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
 
-<br>
-<a href="/">Start Again</a>
+        h3 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        .scores p {
+            font-size: 16px;
+            margin: 6px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: #4f46e5;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .btn:hover {
+            background: #4338ca;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>Interview Scorecard</h2>
+</div>
+
+<div class="card">
+
+    <p><b>Name:</b> {{ name }}</p>
+    <p><b>Role:</b> {{ role }}</p>
+
+    <h3>Scores</h3>
+    <div class="scores">
+        <p>Clarity: {{ scores.clarity }}/10</p>
+        <p>Technical Accuracy: {{ scores.technical_accuracy }}/10</p>
+        <p>Completeness: {{ scores.completeness }}/10</p>
+        <p>Confidence: {{ scores.confidence }}/10</p>
+    </div>
+
+    <h3>Strengths</h3>
+    <ul>
+    {% for s in scores.strengths %}
+        <li>{{ s }}</li>
+    {% endfor %}
+    </ul>
+
+    <h3>Improvements</h3>
+    <ul>
+    {% for i in scores.improvements %}
+        <li>{{ i }}</li>
+    {% endfor %}
+    </ul>
+
+    <h3>Feedback</h3>
+    <p>{{ scores.feedback }}</p>
+
+    <a href="/" class="btn">Start Again</a>
+
+</div>
+
+</body>
+</html>

@@ -1,8 +1,87 @@
-<h2>Interview</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interview</title>
 
-<div style="display:flex; gap:40px;">
-    <div style="width:50%;">
-        <h3>Questions</h3>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f3f4f6;
+        }
+
+        .header {
+            background: #4f46e5;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .left {
+            width: 50%;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .right {
+            width: 50%;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: #4f46e5;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #4338ca;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>AI Interview Session</h2>
+</div>
+
+<div class="container">
+
+    <!-- LEFT PANEL -->
+    <div class="panel left">
+        <h3>Conversation History</h3>
+
         {% for item in history %}
             <p><b>Q:</b> {{ item.question }}</p>
             <p><b>A:</b> {{ item.answer }}</p>
@@ -10,14 +89,18 @@
         {% endfor %}
     </div>
 
-    <div style="width:50%;">
+    <!-- RIGHT PANEL -->
+    <div class="panel right">
         <h3>Current Question</h3>
         <p>{{ question }}</p>
 
         <form method="POST">
-            <textarea name="answer" rows="5" cols="40" required></textarea>
-            <br><br>
-            <button type="submit">Submit</button>
+            <textarea name="answer" rows="6" required></textarea>
+            <button type="submit">Submit Answer</button>
         </form>
     </div>
+
 </div>
+
+</body>
+</html>

@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = "hackathon-secret"
 
 # Gemini client
-client = genai.Client(api_key="AIzaSyB-OnMeN6E1vvrGj60M6sUPdIm0ciUK-PY")
+client = genai.Client(api_key="AIzaSyCpCJIN9rUTIiebA_2Y7kMjmRrxUe70fbM")
 
 
 SYSTEM_PROMPT = """
@@ -99,16 +99,30 @@ JSON format:
 }}
 """
 
-
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt
     )
+
     print(response.text)
+
+    text = response.text.strip()
+    text = text.replace("```json", "").replace("```", "").strip()
+
     try:
-        return json.loads(response.text)
-    except:
-        return {"feedback": response.text}
+        return json.loads(text)
+    except Exception as e:
+        print("JSON parse failed:", e)
+        print("RAW:", text)
+        return {
+            "clarity": "",
+            "technical_accuracy": "",
+            "completeness": "",
+            "confidence": "",
+            "strengths": [],
+            "improvements": [],
+            "feedback": text
+        }
 
 
 # ---------------- INTERVIEW ----------------
