@@ -1,0 +1,23 @@
+<h2>Interview</h2>
+
+<div style="display:flex; gap:40px;">
+    <div style="width:50%;">
+        <h3>Questions</h3>
+        {% for item in history %}
+            <p><b>Q:</b> {{ item.question }}</p>
+            <p><b>A:</b> {{ item.answer }}</p>
+            <hr>
+        {% endfor %}
+    </div>
+
+    <div style="width:50%;">
+        <h3>Current Question</h3>
+        <p>{{ question }}</p>
+
+        <form method="POST">
+            <textarea name="answer" rows="5" cols="40" required></textarea>
+            <br><br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
