@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = "hackathon-secret"
 
 # Gemini client
-client = genai.Client(api_key="AIzaSyCpCJIN9rUTIiebA_2Y7kMjmRrxUe70fbM")
+client = genai.Client(api_key="AIzaSyAhkAmAMv_Z-S8bLjM-PtEN4sXcYv6IbRY")
 
 
 SYSTEM_PROMPT = """
@@ -62,6 +62,9 @@ INTERVIEW HISTORY:
 {history}
 
 Generate the next interview question.
+Output ONLY the question text.
+Do not include labels like "Question 1".
+Do not include commentary.
 """
 
     response = client.models.generate_content(
@@ -69,9 +72,19 @@ Generate the next interview question.
         contents=prompt
     )
 
-    return response.text.strip()
+    text = response.text.strip()
 
+    # Clean formatting issues
+    text = text.replace("**", "")
 
+    if "Question" in text:
+        text = text.split("Question")[-1]
+        text = "Question " + text
+
+    if ":" in text:
+        text = text.split(":", 1)[1].strip()
+
+    return text
 # -------- SCORECARD GENERATION ----------
 def evaluate_answers():
     role = session["role"]

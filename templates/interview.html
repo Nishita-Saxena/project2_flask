@@ -63,6 +63,13 @@
             background: #4338ca;
         }
 
+        #listeningStatus {
+            color: green;
+            font-weight: bold;
+            display: none;
+            margin-top: 8px;
+        }
+
         hr {
             border: none;
             border-top: 1px solid #eee;
@@ -81,7 +88,6 @@
     <!-- LEFT PANEL -->
     <div class="panel left">
         <h3>Conversation History</h3>
-
         {% for item in history %}
             <p><b>Q:</b> {{ item.question }}</p>
             <p><b>A:</b> {{ item.answer }}</p>
@@ -92,15 +98,77 @@
     <!-- RIGHT PANEL -->
     <div class="panel right">
         <h3>Current Question</h3>
-        <p>{{ question }}</p>
+
+        <div style="display:flex; align-items:center; gap:10px;">
+            <p id="questionText">{{ question }}</p>
+            <button type="button" onclick="speakQuestion()">🔊</button>
+        </div>
 
         <form method="POST">
-            <textarea name="answer" rows="6" required></textarea>
+            <textarea id="answerBox" name="answer" rows="6" required></textarea>
+
+            <div id="listeningStatus">Listening...</div>
+
+            <button type="button" id="micBtn" onclick="toggleRecording()">🎤</button>
             <button type="submit">Submit Answer</button>
         </form>
     </div>
 
 </div>
+
+<script>
+window.onload = function () {
+    speakQuestion();
+};
+
+/* TEXT TO SPEECH */
+function speakQuestion() {
+    const text = document.getElementById("questionText").innerText;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    window.speechSynthesis.speak(speech);
+}
+
+/* SPEECH TO TEXT */
+let recognizing = false;
+let recognition;
+
+if ('webkitSpeechRecognition' in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = function(event) {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+        }
+        document.getElementById("answerBox").value = transcript;
+    };
+
+    recognition.onend = function() {
+        recognizing = false;
+        document.getElementById("micBtn").innerText = "🎤";
+        document.getElementById("listeningStatus").style.display = "none";
+    };
+}
+
+function toggleRecording() {
+    const status = document.getElementById("listeningStatus");
+
+    if (!recognizing) {
+        recognition.start();
+        recognizing = true;
+        document.getElementById("micBtn").innerText = "⏹";
+        status.style.display = "block";
+    } else {
+        recognition.stop();
+        recognizing = false;
+        document.getElementById("micBtn").innerText = "🎤";
+        status.style.display = "none";
+    }
+}
+</script>
 
 </body>
 </html>
