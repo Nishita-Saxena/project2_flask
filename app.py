@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = "hackathon-secret"
 
 # Gemini client
-client = genai.Client(api_key="AIzaSyAhkAmAMv_Z-S8bLjM-PtEN4sXcYv6IbRY")
+client = genai.Client(api_key="AIzaSyDLQL0ITSx0Z9HCDzm7ZKI0XL_JYlXfvn8")
 
 
 SYSTEM_PROMPT = """
@@ -36,17 +36,21 @@ def setup():
     if request.method == "POST":
         session["name"] = request.form["name"]
         session["role"] = request.form["role"]
+        session["resume_text"] = request.form.get("resume_text", "")
+
         session["answers"] = []
         session["questions"] = []
         session["q_index"] = 0
+
         return redirect(url_for("interview"))
 
+    # THIS RETURN IS REQUIRED
     return render_template("setup.html")
-
 
 # -------- QUESTION GENERATION ----------
 def generate_question():
     role = session["role"]
+    resume_text = session.get("resume_text", "")
 
     history = "\n".join(
         [f"Q:{a['question']}\nA:{a['answer']}" for a in session["answers"]]
@@ -56,6 +60,10 @@ def generate_question():
 {SYSTEM_PROMPT}
 
 ROLE: {role}
+
+RESUME:
+{resume_text}
+
 QUESTION NUMBER: {session['q_index'] + 1}
 
 INTERVIEW HISTORY:
@@ -74,17 +82,11 @@ Do not include commentary.
 
     text = response.text.strip()
 
-    # Clean formatting issues
-    text = text.replace("**", "")
-
-    if "Question" in text:
-        text = text.split("Question")[-1]
-        text = "Question " + text
-
-    if ":" in text:
-        text = text.split(":", 1)[1].strip()
+    # minimal cleanup only
+    text = text.replace("**", "").strip()
 
     return text
+
 # -------- SCORECARD GENERATION ----------
 def evaluate_answers():
     role = session["role"]
